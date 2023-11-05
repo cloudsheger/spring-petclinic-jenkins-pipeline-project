@@ -1,22 +1,21 @@
 # Jenkins Pipeline for Spring-PetClinic Project (Deploy to DockerHub)
 
 ## Introduction
-Pipeline built in Jenkins for the Spring project: ```https://github.com/spring-projects/spring-petclinic```.
+Pipeline built in Jenkins for the Spring project: ```https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git```.
 
 ## Dockerhub Links
 - 'spring-petclinic-hub' repository is where all the runnable images are stored: https://hub.docker.com/repository/docker/cloudsheger/spring-petclinic-hub.
 - 'jenkins-docker' repository is where all the containers with jenkins and docker installed are stored: https://hub.docker.com/repository/docker/cloudsheger/jenkins-docker.
 
 ## Prerequisites
-- Install wget using brew: ```brew install wget```.
 - Docker installed.
 
 ## Running the Project
 
-1) Clone the project: <br>```git clone https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline.git```
+1) Clone the project: <br>```https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git```
 
 2) CD into the project and provide permissions to the shell running scripts:</br>
-- ```cd spring-petclinic-jenkins-pipeline```
+- ```cd spring-petclinic-jenkins-pipeline-project```
 - ```chmod 755 *.sh```
 
 3) Run a containerized Docker & Jenkins environemnt using (please provide your password when prompted):</br>
