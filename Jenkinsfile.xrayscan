@@ -34,7 +34,7 @@ pipeline {
 			steps {
 				script {
                     // location of dockerfile docker-scan/app
-					docker.build("$DOCKER_IMAGE_NAME", 'docker-scan/app')
+					docker.build("$DOCKER_IMAGE_NAME", '-f docker-scan/app/Dockerfile .')
 				}
 			}
 		}
