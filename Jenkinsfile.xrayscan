@@ -33,7 +33,7 @@ pipeline {
 		stage('Build Docker image') {
 			steps {
 				script {
-                    docker build -f 'docker-scan/app/Dockerfile'  .
+                    sh'docker build -f docker-scan/app/Dockerfile  .'
                     // location of dockerfile docker-scan/app
 					//docker.build("$DOCKER_IMAGE_NAME", '-f docker-scan/app/Dockerfile .')
 				}
