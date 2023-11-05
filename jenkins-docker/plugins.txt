@@ -1,0 +1,7 @@
+blueocean
+git
+docker-commons
+ansible
+pipeline-aws
+pipeline-github
+# Add more plugins here
