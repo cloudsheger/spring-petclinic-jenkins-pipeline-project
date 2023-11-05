@@ -2,6 +2,8 @@ pipeline {
 	agent any
 	tools {
 		jfrog 'jfrog-cli'
+        maven 'Maven 3.3.9'
+        jdk 'jdk8'
 	}
 	environment {
 		DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
