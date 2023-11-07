@@ -16,11 +16,11 @@ pipeline {
         }
         stage('SonarQube Scan') {
             steps {
-                sonarScanPipeline 
+                sonarScanPipeline(
                 projectKey: params.ProjectKey, 
                 projectName: params.ProjectName, 
                 sonarHostUrl: params.SonarHostUrl, 
-                sonarToken: params.SonarToken
+                sonarToken: params.SonarToken)
             }
         }
     }
