@@ -7,7 +7,7 @@ pipeline {
 	}
 	environment {
 		DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
-		SONAR_TOKEN_KEYS = credential('sonar_token')
+		SONAR_TOKEN_KEYS = credentials('sonar_token')
 	}
 	stages {
 		stage('Clone') {
@@ -32,11 +32,11 @@ pipeline {
     }
 	stage('Sonar Static Code Analysis') {
 		steps {
-			sh ''mvn clean verify sonar:sonar \
+			sh "'mvn clean verify sonar:sonar \
                -Dsonar.projectKey=petclinic \
                -Dsonar.projectName='petclinic' \
                -Dsonar.host.url=http://localhost:9000 \
-               -Dsonar.token=$SONAR_TOKEN_KEYS''
+               -Dsonar.token=${SONAR_TOKEN_KEYS}'"
 		}
 	}
 
