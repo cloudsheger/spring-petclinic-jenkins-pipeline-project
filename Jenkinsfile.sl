@@ -3,8 +3,8 @@
 pipeline {
     agent any
     parameters {
-        string(name: 'ProjectKey', defaultValue: 'my-project', description: 'SonarQube project key')
-        string(name: 'ProjectName', defaultValue: 'My Project', description: 'SonarQube project name')
+        string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
+        string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
         string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
         string(name: 'SonarToken', defaultValue: '', description: 'SonarQube token')
     }
