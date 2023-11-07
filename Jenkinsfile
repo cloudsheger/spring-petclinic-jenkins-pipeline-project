@@ -20,7 +20,7 @@ pipeline {
          sh 'mvn compile' //only compilation of the code
        }
     }
-    stage('Test') {
+    stage('Test & Build') {
       steps {
         sh '''
         mvn clean install
@@ -34,6 +34,7 @@ pipeline {
       steps{
         script {
           dockerImage = docker.build registry + ":latest"
+          // dockerImage = docker build -t registry .
         }
       }
     }
@@ -42,6 +43,8 @@ pipeline {
          script {
             docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
+            // docker login -u cloudsheger -p "password"
+            //docker push dockerImageName:tag
           }
         }
       }
