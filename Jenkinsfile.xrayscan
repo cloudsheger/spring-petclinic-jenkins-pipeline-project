@@ -36,7 +36,7 @@ pipeline {
                -Dsonar.projectKey=petclinic \
                -Dsonar.projectName='petclinic' \
                -Dsonar.host.url=http://localhost:9000 \
-               -Dsonar.token=${SONAR_TOKEN_KEYS}'"
+               -Dsonar.token=$SONAR_TOKEN_KEYS'"
 		}
 	}
 
