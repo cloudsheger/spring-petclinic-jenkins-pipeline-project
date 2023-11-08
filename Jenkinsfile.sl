@@ -19,6 +19,11 @@ pipeline {
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Github branch name')
     }
     stages {
+    stage('Cleanup Workspace') {
+        steps {
+            cleanWs()
+        }
+    }
      stage('Checkout SCM') {
       steps {
         git branch: GIT_BRANCH, url: GIT_REPO
