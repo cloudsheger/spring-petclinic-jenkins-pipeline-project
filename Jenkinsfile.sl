@@ -1,6 +1,10 @@
 @Library('my-shared-library') _
 
 pipeline {
+    
+    environment {
+        SONAR_TOKEN = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
+    }
 
     agent any
     tools {
