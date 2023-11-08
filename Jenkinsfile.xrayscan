@@ -1,23 +1,26 @@
 pipeline {
 	agent any
+
 	tools {
 		jfrog 'jfrog-cli'
         maven 'Maven 3.3.9'
         jdk 'jdk8'
 	}
+
 	environment {
 		DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
 		SONAR_TOKEN_KEY = credentials('sonar_token_key')
 	}
-	stages {
-		stage('Clone') {
-			steps {
-				git branch: 'main', url: "https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git"
+ stages {
+	stage('Clone') {
+		steps {
+			git branch: 'main', url: "https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git"
+
 			}
 		}
-        stage('Compile') {
-            steps {
-                sh 'mvn compile' //only compilation of the code
+    stage('Compile') {
+        steps {
+            sh 'mvn compile' //only compilation of the code
        }
     }
     stage('Test') {
@@ -30,6 +33,7 @@ pipeline {
         //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
       }
     }
+
 	stage('Sonar Static Code Analysis') {
 		steps {
 			sh"mvn clean verify sonar:sonar \
@@ -40,7 +44,13 @@ pipeline {
 		}
 	}
 
-		stage('Build Docker image') {
+	stage ('Quality Gateway'){
+		steps {
+			qualityGates()
+		}
+	}
+
+	stage('Build Docker image') {
 			steps {
 				script {
                     sh'docker build -f docker-scan/app/Dockerfile  .'
@@ -50,7 +60,7 @@ pipeline {
 			}
 		}
 
-		stage('Scan and push image') {
+	stage('Scan and push image') {
 			steps {
 				dir('docker-scan/app/') {
 					// Scan Docker image for vulnerabilities
@@ -62,10 +72,11 @@ pipeline {
 			}
 		}
 
-		stage('Publish build info') {
+	stage('Publish build info') {
 			steps {
 				jf 'rt build-publish'
 			}
 		}
+
 	}
 }
