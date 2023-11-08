@@ -1,7 +1,7 @@
 @Library('my-shared-library') _
 
 pipeline {
-    
+
     environment {
         SONAR_TOKEN = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
     }
@@ -15,7 +15,7 @@ pipeline {
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
         string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
-        string(name: 'SonarToken', defaultValue: '', description: 'SonarQube token')
+        //string(name: 'SonarToken', defaultValue: '', description: 'SonarQube token')
     }
     stages {
      stage('Cloning Git') {
@@ -40,11 +40,13 @@ pipeline {
      }
      stage('Sonar Static Code Analysis') {
         steps {
+         withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
             sonarScanPipeline(
             projectKey: params.ProjectKey, 
             projectName: params.ProjectName, 
             sonarHostUrl: params.SonarHostUrl, 
-            sonarToken: params.SonarToken)
+            sonarToken: env.SONAR_TOKEN)
+            }
         }
      }
      stage ('Quality Gateway'){
