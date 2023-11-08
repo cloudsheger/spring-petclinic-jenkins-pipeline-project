@@ -3,7 +3,7 @@
 pipeline {
 
     environment {
-        SONAR_TOKEN_ID = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
+        sonar_token = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
     }
 
     agent any
@@ -40,13 +40,15 @@ pipeline {
      }
      stage('Sonar Static Code Analysis') {
         steps {
+          withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
             sonarScanPipeline(
             projectKey: params.ProjectKey, 
             projectName: params.ProjectName, 
             sonarHostUrl: params.SonarHostUrl, 
-            sonarToken: env.SONAR_TOKEN_ID)
+            sonarToken: ${sonar_token})
+          }
             
-        }
+       }
      }
      stage ('Quality Gateway'){
 		steps {
