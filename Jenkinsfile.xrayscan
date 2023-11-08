@@ -9,6 +9,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
+		sonar_token = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
     }
 
     parameters {
@@ -32,13 +33,15 @@ pipeline {
 
         stage('Sonar Static Code Analysis') {
             steps {
+			 withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
                 sh "mvn clean verify sonar:sonar \
-                    -Dsonar.projectKey=${params.ProjectKey} \
-                    -Dsonar.projectName='${params.ProjectName}' \
-                    -Dsonar.host.url=${params.SonarHostUrl} \
-                    -Dsonar.login=\$SONAR_TOKEN_KEY"
+                    -Dsonar.projectKey=${projectKey} \
+                    -Dsonar.projectName='${projectName}' \
+                    -Dsonar.host.url=${sonarHostUrl} \
+                    -Dsonar.login=${sonar_token}"
+                }
             }
-        }
+		}	
 
         stage('Build Docker image') {
             steps {
