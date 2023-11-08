@@ -43,5 +43,10 @@ pipeline {
             sonarToken: params.SonarToken)
         }
      }
+     stage ('Quality Gateway'){
+		steps {
+			qualityGates()
+		}
+	 }
     }
 }
