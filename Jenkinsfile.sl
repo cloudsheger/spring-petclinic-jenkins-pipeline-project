@@ -40,13 +40,12 @@ pipeline {
      }
      stage('Sonar Static Code Analysis') {
         steps {
-         withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'SONAR_TOKEN')]) {
             sonarScanPipeline(
             projectKey: params.ProjectKey, 
             projectName: params.ProjectName, 
             sonarHostUrl: params.SonarHostUrl, 
             sonarToken: env.SONAR_TOKEN)
-            }
+            
         }
      }
      stage ('Quality Gateway'){
