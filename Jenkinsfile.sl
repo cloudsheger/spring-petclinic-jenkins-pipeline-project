@@ -15,12 +15,13 @@ pipeline {
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
         string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
-        //string(name: 'SonarToken', defaultValue: '', description: 'SonarQube token')
+        string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline.git', description: 'Github repo')
+        string(name: 'GIT_BRANCH', defaultValue: 'dev', description: 'Github branch name')
     }
     stages {
-     stage('Cloning Git') {
+     stage('Checkout SCM') {
       steps {
-        git 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline.git'
+        git branch: GIT_BRANCH, url: GIT_REPO
       }
      }
      stage('Compile') {
@@ -50,6 +51,25 @@ pipeline {
             
        }
      }
+     stage ('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("talyi-docker.jfrog.io/" + "pet-clinic:1.0.${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage ('Push Image to Artifactory') {
+            steps {
+                rtDockerPush(
+                    serverId: "artifactory-server-id",
+                    image: "talyi-docker.jfrog.io/" + "pet-clinic:1.0.${env.BUILD_NUMBER}",
+                    targetRepo: 'docker',
+                    properties: 'project-name=jfrog-blog-post;status=stable'
+                )
+            }
+        }
+
      stage ('Quality Gateway'){
 		steps {
 			qualityGates()
