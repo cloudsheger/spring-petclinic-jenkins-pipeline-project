@@ -45,7 +45,7 @@ pipeline {
             projectKey: params.ProjectKey, 
             projectName: params.ProjectName, 
             sonarHostUrl: params.SonarHostUrl, 
-            sonarToken: "${sonar_token}")
+            sonarToken: '${sonar_token}')
           }
             
        }
