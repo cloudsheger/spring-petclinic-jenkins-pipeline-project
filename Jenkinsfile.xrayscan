@@ -1,82 +1,73 @@
 pipeline {
-	agent any
+    agent any
 
-	tools {
-		jfrog 'jfrog-cli'
-        maven 'Maven 3.3.9'
+    tools {
+        jfrog 'jfrog-cli'
+        maven 'Maven 3.9.5'
         jdk 'jdk8'
-	}
-
-	environment {
-		DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
-		SONAR_TOKEN_KEY = credentials('sonar_token_key')
-	}
- stages {
-	stage('Clone') {
-		steps {
-			git branch: 'main', url: "https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git"
-
-			}
-		}
-    stage('Compile') {
-        steps {
-            sh 'mvn compile' //only compilation of the code
-       }
-    }
-    stage('Test') {
-      steps {
-        sh '''
-        mvn clean install -DskipTests=true
-        ls
-        pwd
-        ''' 
-        //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
-      }
     }
 
-	stage('Sonar Static Code Analysis') {
-		steps {
-			sh"mvn clean verify sonar:sonar \
-                -Dsonar.projectKey=petclinic \
-                -Dsonar.projectName='petclinic' \
-                -Dsonar.host.url=http://localhost:9000 \
-                -Dsonar.token=$SONAR_TOKEN_KEY"
-		}
-	}
+    environment {
+        DOCKER_IMAGE_NAME = "cloudsheger.jfrog.io/docker/petclinic:1.0"
+    }
 
-	stage ('Quality Gateway'){
-		steps {
-			qualityGates()
-		}
-	}
+    parameters {
+        string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
+        string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
+        string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
+    }
 
-	stage('Build Docker image') {
-			steps {
-				script {
-                    sh'docker build -f docker-scan/app/Dockerfile  .'
-                    // location of dockerfile docker-scan/app
-					//docker.build("$DOCKER_IMAGE_NAME", '-f docker-scan/app/Dockerfile .')
-				}
-			}
-		}
+    stages {
+        stage('Clone') {
+            steps {
+                git branch: 'main', url: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git'
+            }
+        }
 
-	stage('Scan and push image') {
-			steps {
-				dir('docker-scan/app/') {
-					// Scan Docker image for vulnerabilities
-					jf 'docker scan $DOCKER_IMAGE_NAME'
+        stage('Compile and Test') {
+            steps {
+                sh 'mvn clean install -DskipTests=true'
+            }
+        }
 
-					// Push image to Artifactory
-					jf 'docker push $DOCKER_IMAGE_NAME'
-				}
-			}
-		}
+        stage('Sonar Static Code Analysis') {
+            steps {
+                sh "mvn clean verify sonar:sonar \
+                    -Dsonar.projectKey=${params.ProjectKey} \
+                    -Dsonar.projectName='${params.ProjectName}' \
+                    -Dsonar.host.url=${params.SonarHostUrl} \
+                    -Dsonar.login=\$SONAR_TOKEN_KEY"
+            }
+        }
 
-	stage('Publish build info') {
-			steps {
-				jf 'rt build-publish'
-			}
-		}
+        stage('Build Docker image') {
+            steps {
+                script {
+                    sh 'docker build -f docker-scan/app/Dockerfile -t $DOCKER_IMAGE_NAME .'
+                }
+            }
+        }
 
-	}
+        stage('Scan and Push Docker image') {
+            steps {
+                script {
+                    dir('docker-scan/app/') {
+                        // Scan Docker image for vulnerabilities
+                        sh "jfrog rt docker-scan $DOCKER_IMAGE_NAME"
+
+                        // Push image to Artifactory
+                        sh "docker push $DOCKER_IMAGE_NAME"
+                    }
+                }
+            }
+        }
+
+        stage('Publish Build Info') {
+            steps {
+                script {
+                    sh 'jfrog rt build-publish --build-name=my-build --build-number=1'
+                }
+            }
+        }
+    }
 }
