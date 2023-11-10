@@ -56,7 +56,7 @@ pipeline {
                 script {
                     dir('docker-scan/app/') {
                         // Scan Docker image for vulnerabilities
-                        sh "jfrog rt docker scan $DOCKER_IMAGE_NAME"
+                        sh "jfrog docker scan $DOCKER_IMAGE_NAME"
 
                         // Push image to Artifactory
                         sh "docker push $DOCKER_IMAGE_NAME"
@@ -68,7 +68,7 @@ pipeline {
         stage('Publish Build Info') {
             steps {
                 script {
-                    sh 'jfrog rt build-publish --build-name=my-build --build-number=1'
+                    sh 'jf build-publish --build-name=my-build --build-number=1'
                 }
             }
         }
