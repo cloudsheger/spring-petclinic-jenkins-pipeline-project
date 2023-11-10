@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
-        string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
+        string(name: 'SonarHostUrl', defaultValue: 'http://3.95.187.109:9000', description: 'SonarQube server URL')
     }
 
     stages {
