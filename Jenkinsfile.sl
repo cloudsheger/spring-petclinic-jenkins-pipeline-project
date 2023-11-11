@@ -1,84 +1,109 @@
 @Library('my-shared-library') _
 
 pipeline {
-
     environment {
-        sonar_token = credentials('SONAR_TOKEN_ID') // SONAR_TOKEN_ID should be the ID of the Jenkins credentials storing your SonarQube token
+        sonar_token = credentials('SONAR_TOKEN_ID')
     }
 
     agent any
     tools {
-    maven 'Maven 3.9.5'
-    jdk 'jdk8'
+        maven 'Maven 3.9.5'
+        jdk 'jdk8'
     }
+
     parameters {
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
         string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
-        string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'Github repo')
-        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'Github branch name')
+        string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
+        string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
+
+        // Artifactory related variables
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'https://cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+        string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
+        string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'artifactory-credentials', description: 'Artifactory credentials ID')
     }
+
     stages {
-    stage('Cleanup Workspace') {
-        steps {
-            cleanWs()
-        }
-    }
-     stage('Checkout SCM') {
-      steps {
-        git branch: GIT_BRANCH, url: GIT_REPO
-      }
-     }
-     stage('Compile') {
-      steps {
-         sh 'mvn compile' //only compilation of the code
-       }
-     }
-     stage('Test & Build') {
-      steps {
-        sh '''
-        mvn clean install
-        ls
-        pwd
-        ''' 
-        //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
-      }
-     }
-     stage('Sonar Static Code Analysis') {
-        steps {
-          withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
-            sonarScanPipeline(
-            projectKey: params.ProjectKey, 
-            projectName: params.ProjectName, 
-            sonarHostUrl: params.SonarHostUrl, 
-            sonarToken: '${sonar_token}')
-          }
-            
-       }
-     }
-     stage ('Build Docker Image') {
+        stage('Cleanup Workspace') {
             steps {
-                script {
-                    docker.build("talyi-docker.jfrog.io/" + "pet-clinic:1.0.${env.BUILD_NUMBER}")
+                cleanWs()
+            }
+        }
+
+        stage('Checkout SCM') {
+            steps {
+                git branch: params.GIT_BRANCH, url: params.GIT_REPO
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
+
+        stage('Test & Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Sonar Static Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
+                    sonarScanPipeline(
+                        projectKey: params.ProjectKey,
+                        projectName: params.ProjectName,
+                        sonarHostUrl: params.SonarHostUrl,
+                        sonarToken: '${sonar_token}'
+                    )
                 }
             }
         }
 
-        stage ('Push Image to Artifactory') {
+        stage('Build Docker Image') {
             steps {
-                rtDockerPush(
-                    serverId: "artifactory-server-id",
-                    image: "talyi-docker.jfrog.io/" + "pet-clinic:1.0.${env.BUILD_NUMBER}",
-                    targetRepo: 'docker',
-                    properties: 'project-name=jfrog-blog-post;status=stable'
+                buildDockerImage(
+                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
+                    DOCKER_REPO: params.DOCKER_REPO,
+                    IMAGE_NAME: params.IMAGE_NAME,
+                    BUILD_NUMBER: params.BUILD_NUMBER
                 )
             }
         }
 
-     stage ('Quality Gateway'){
-		steps {
-			qualityGates()
-		}
-	 }
+        stage('Push Image to Artifactory') {
+            steps {
+                pushToArtifactory(
+                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
+                    DOCKER_REPO: params.DOCKER_REPO,
+                    IMAGE_NAME: params.IMAGE_NAME,
+                    BUILD_NUMBER: params.BUILD_NUMBER,
+                    ARTIFACTORY_CREDENTIALS_ID: params.ARTIFACTORY_CREDENTIALS_ID
+                )
+            }
+        }
+
+        stage('Cleanup Docker Image') {
+            steps {
+                cleanupDockerImage(
+                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
+                    DOCKER_REPO: params.DOCKER_REPO,
+                    IMAGE_NAME: params.IMAGE_NAME,
+                    BUILD_NUMBER: params.BUILD_NUMBER
+                )
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                // Add any cleanup actions or notifications here
+            }
+        }
     }
 }
