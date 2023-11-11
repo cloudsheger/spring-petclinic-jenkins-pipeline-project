@@ -101,7 +101,8 @@ pipeline {
 
     post {
         always {
-            script {
+            script {  
+                sh'echo "deployment success"'
                 // Add any cleanup actions or notifications here
             }
         }
