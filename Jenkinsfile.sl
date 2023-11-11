@@ -19,7 +19,7 @@ pipeline {
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
         // Artifactory related variables
-        string(name: 'DOCKER_REGISTRY', defaultValue: 'https://cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
         string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
