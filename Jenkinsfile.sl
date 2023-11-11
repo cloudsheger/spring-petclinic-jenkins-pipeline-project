@@ -3,6 +3,7 @@
 pipeline {
     environment {
         sonar_token = credentials('SONAR_TOKEN_ID')
+        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials')
     }
 
     agent any
@@ -23,7 +24,7 @@ pipeline {
         string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
-        string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'artifactory-credentials', description: 'Artifactory credentials ID')
+        //string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'artifactory-credentials', description: 'Artifactory credentials ID')
     }
 
     stages {
@@ -82,7 +83,7 @@ pipeline {
                     DOCKER_REPO: params.DOCKER_REPO,
                     IMAGE_NAME: params.IMAGE_NAME,
                     BUILD_NUMBER: params.BUILD_NUMBER,
-                    ARTIFACTORY_CREDENTIALS_ID: params.ARTIFACTORY_CREDENTIALS_ID
+                    ARTIFACTORY_CREDENTIALS_ID: '${ARTIFACTORY_CREDENTIALS_ID}'
                 )
             }
         }
