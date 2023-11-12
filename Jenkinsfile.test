@@ -52,7 +52,7 @@ pipeline {
         }
         stage ('Pushe Docker Image'){
             steps {
-      	      withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_API_KEY', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+      	      withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
         	    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
                 sh 'docker push cloudsheger/spring-petclinic-hub:latest'
 
