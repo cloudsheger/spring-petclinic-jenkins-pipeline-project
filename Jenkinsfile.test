@@ -6,10 +6,6 @@ pipeline {
         jdk 'jdk8'
     }
     
-    environment {
-        DOCKERHUB_API_KEY = credentials('docker-hub-credentials')
-    }
-    
     stages {
         stage('Clean Workspace') {
             steps {
