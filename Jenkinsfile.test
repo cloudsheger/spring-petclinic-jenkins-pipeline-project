@@ -5,6 +5,10 @@ pipeline {
         maven 'Maven 3.9.5'
         jdk 'jdk8'
     }
+
+    environment {
+        DOCKERHUB_API_KEY = credentials('docker-hub-credentials')
+    }
     
     stages {
         stage('Clean Workspace') {
@@ -46,8 +50,17 @@ pipeline {
                 }
             }
         }
+        stage ('Pushe Docker Image'){
+            steps {
+      	      withCredentials([usernamePassword(credentialsId: 'DOCKERHUB_API_KEY', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+        	    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                sh 'docker push cloudsheger/spring-petclinic-hub:latest'
+
+              }
+           }
+        }
     
-        stage('Push Docker image') {
+        /*stage('Push Docker image') {
             steps {
                 script {
                     // Use withCredentials to securely access Docker Hub API key
@@ -59,7 +72,7 @@ pipeline {
                     }
                 }
             }
-        }
+        }*/
         
         stage('Clean up') {
             steps {
