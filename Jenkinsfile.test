@@ -5,9 +5,9 @@ pipeline {
         maven 'Maven 3.9.5'
         jdk 'jdk8'
     }
+    
     environment {
-        // Get Docker Hub API key from Jenkins credentials
-        dockerHubCredentials = credentials('docker-hub-credentials')
+        DOCKERHUB_API_KEY = credentials('docker-hub-credentials')
     }
     
     stages {
@@ -20,7 +20,6 @@ pipeline {
         stage('Clone repository') {
             steps {
                 script {
-                    // Clone repository from the main branch
                     git url: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', branch: 'main'
                 }
             }
@@ -29,7 +28,6 @@ pipeline {
         stage('Compile and Test') {
             steps {
                 script {
-                    // Compile and test using Maven
                     sh 'mvn clean install -DskipTests=true'
                 }
             }
@@ -38,7 +36,6 @@ pipeline {
         stage('Build Docker image') {
             steps {
                 script {
-                    // Build Docker image
                     app = docker.build("cloudsheger/spring-petclinic-hub", "-f docker-scan/app/Dockerfile .")
                 }
             }
@@ -47,7 +44,6 @@ pipeline {
         stage('Test Docker image') {
             steps {
                 script {
-                    // Test the Docker image (placeholder)
                     app.inside {
                         sh 'echo "Tests passed"'
                     }
@@ -55,22 +51,23 @@ pipeline {
             }
         }
     
-    stage('Push Docker image') {
-    steps {
-        script {
-            // Push Docker image to Docker Hub
-            docker.withRegistry('https://registry.hub.docker.com', 'dockerHubCredentials' ) {
-                app.push("${env.BUILD_NUMBER}")
-                app.push("latest")
+        stage('Push Docker image') {
+            steps {
+                script {
+                    // Use withCredentials to securely access Docker Hub API key
+                    withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKERHUB_API_KEY')]) {
+                        docker.withRegistry('https://registry.hub.docker.com', 'DOCKERHUB_API_KEY') {
+                            app.push("${env.BUILD_NUMBER}")
+                            app.push("latest")
+                        }
+                    }
+                }
             }
         }
-    }
-}
         
         stage('Clean up') {
             steps {
                 script {
-                    // remove Docker containers/images
                     sh 'docker system prune -af'
                 }
             }
