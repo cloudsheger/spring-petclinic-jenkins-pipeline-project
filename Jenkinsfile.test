@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_API_KEY = credentials('docker-hub-credentials')
+        DOCKERHUB_API_KEY = credentials('docker-hub')
     }
     
     stages {
@@ -50,21 +50,12 @@ pipeline {
                 }
             }
         }
-        stage ('Pushe Docker Image'){
-            steps {
-      	      withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-        	    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                sh 'docker push cloudsheger/spring-petclinic-hub:latest'
-
-              }
-           }
-        }
     
-        /*stage('Push Docker image') {
+        stage('Push Docker image') {
             steps {
                 script {
                     // Use withCredentials to securely access Docker Hub API key
-                    withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKERHUB_API_KEY')]) {
+                    withCredentials([string(credentialsId: 'docker-hub', variable: 'DOCKERHUB_API_KEY')]) {
                         docker.withRegistry('https://registry.hub.docker.com', 'DOCKERHUB_API_KEY') {
                             app.push("${env.BUILD_NUMBER}")
                             app.push("latest")
@@ -72,7 +63,7 @@ pipeline {
                     }
                 }
             }
-        }*/
+        }
         
         stage('Clean up') {
             steps {
