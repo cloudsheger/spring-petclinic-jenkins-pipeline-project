@@ -1,80 +1,55 @@
 pipeline {
-    agent any
-    
-    tools {
-        maven 'Maven 3.9.5'
-        jdk 'jdk8'
+  environment {
+    registry = "cloudsheger/spring-petclinic-hub"
+    registryCredential = 'docker-hub'
+    dockerImage = ''
+  }
+  agent any
+  tools {
+    maven 'Maven 3.9.5'
+    jdk 'jdk8'
+  } 
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline.git'
+      }
     }
-
-    environment {
-        dockerHubCred = credentials('docker-hub')
+    stage('Compile') {
+       steps {
+         sh 'mvn compile' //only compilation of the code
+       }
     }
-    
-    stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
-        stage('Clone repository') {
-            steps {
-                script {
-                    git url: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', branch: 'main'
-                }
-            }
-        }
-
-        stage('Compile and Test') {
-            steps {
-                script {
-                    sh 'mvn clean install -DskipTests=true'
-                }
-            }
-        }
-    
-        stage('Build Docker image') {
-            steps {
-                script {
-                    app = docker.build("cloudsheger/spring-petclinic-hub", "-f docker-scan/app/Dockerfile .")
-                }
-            }
-        }
-    
-        stage('Test Docker image') {
-            steps {
-                script {
-                    app.inside {
-                        sh 'echo "Tests passed"'
-                    }
-                }
-            }
-        }
-        
-        stage('Push Docker image') {
-            steps {
-                script {
-                    // Use withCredentials to securely access Docker Hub credentials
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                        sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                        sh 'docker push cloudsheger/spring-petclinic-hub:latest'
-                    }
-                }
-            }
-        }
-    
-        stage('Clean up') {
-            steps {
-                script {
-                    sh 'docker system prune -af'
-                }
-            }
-        }
+    stage('Test') {
+      steps {
+        sh '''
+        mvn clean install
+        ls
+        pwd
+        ''' 
+        //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
+      }
     }
-    
-    post {
-        always {
-            cleanWs()
+    stage('Building Image') {
+      steps{
+        script {
+          dockerImage = docker.build registry + ":latest"
         }
+      }
     }
+    stage('Deploy Image DockerHub') {
+      steps{
+         script {
+            docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry:latest"
+      }
+    }
+  }
 }
