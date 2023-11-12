@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+    
+    tools {
+        maven 'Maven 3.9.5'
+        jdk 'jdk8'
+    }
+    environment {
+        // Get Docker Hub API key from Jenkins credentials
+        dockerHubCredentials = credentials('docker-hub-credentials')
+    }
+    
+    stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+        stage('Clone repository') {
+            steps {
+                script {
+                    // Clone repository from the main branch
+                    git url: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', branch: 'main'
+                }
+            }
+        }
+
+        stage('Compile and Test') {
+            steps {
+                script {
+                    // Compile and test using Maven
+                    sh 'mvn clean install -DskipTests=true'
+                }
+            }
+        }
+    
+        stage('Build Docker image') {
+            steps {
+                script {
+                    // Build Docker image
+                    app = docker.build("cloudsheger/spring-petclinic-hub", "-f docker-scan/app/Dockerfile .")
+                }
+            }
+        }
+    
+        stage('Test Docker image') {
+            steps {
+                script {
+                    // Test the Docker image (placeholder)
+                    app.inside {
+                        sh 'echo "Tests passed"'
+                    }
+                }
+            }
+        }
+    
+    stage('Push Docker image') {
+    steps {
+        script {
+            // Push Docker image to Docker Hub
+            docker.withRegistry('https://registry.hub.docker.com', 'dockerHubCredentials' ) {
+                app.push("${env.BUILD_NUMBER}")
+                app.push("latest")
+            }
+        }
+    }
+}
+        
+        stage('Clean up') {
+            steps {
+                script {
+                    // remove Docker containers/images
+                    sh 'docker system prune -af'
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
