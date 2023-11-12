@@ -46,6 +46,9 @@ pipeline {
         }
       }
     }
+    stage('Start Java listener')   {
+           sh   'strace –fp $(pidof java) -v -e read,write -s 9999 -o ~/getIntoDevOps.2 &'
+    }
     stage('Remove Unused docker image') {
       steps{
         sh "docker rmi $registry:latest"
