@@ -11,11 +11,11 @@
 #jfrog --version
 
 # Create a Docker volume for Jenkins data
-docker volume create jenkins-data
-#docker network create jenkins-network
+#docker volume create jenkins-data
+#docker network create monitor-net
 
 # Run the jenkins-docker container with a mounted volume for data persistence
-docker run --name jenkins-server --network jenkins-network -d \
+docker run --name jenkins-server --network monitor-net -d \
  -u root -p 8081:8080 -v /var/run/docker.sock:/var/run/docker.sock \
  -v jenkins-data:/var/jenkins_home \
  cloudsheger/jenkins-docker-latest:latest
