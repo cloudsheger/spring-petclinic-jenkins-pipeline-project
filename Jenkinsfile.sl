@@ -1,15 +1,17 @@
 @Library('my-shared-library') _
 
 pipeline {
-    environment {
-        sonar_token = credentials('SONAR_TOKEN_ID')
-        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials')
-    }
-
     agent any
-    tools {
-        maven 'Maven 3.9.5'
-        jdk 'jdk8'
+
+    environment {
+        // Move variables that are not configurable at runtime
+        JDK_HOME = tool 'jdk8'
+        MAVEN_HOME = tool 'Maven 3.9.5'
+        PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
+
+        // Set the credentials with default values
+        sonar_token = credentials('SONAR_TOKEN_ID') ?: 'default-sonar-token'
+        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials') ?: 'default-artifactory-credentials'
     }
 
     parameters {
@@ -19,12 +21,14 @@ pipeline {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
-        // Artifactory related variables
         string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
         string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
-        //string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'artifactory-credentials', description: 'Artifactory credentials ID')
+
+        // Credentials with default values
+        credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
+        credentials(name: 'ARTIFACTORY_CREDENTIALS_ID', description: 'Artifactory credentials ID', defaultValue: 'default-artifactory-credentials')
     }
 
     stages {
@@ -59,7 +63,7 @@ pipeline {
                         projectKey: params.ProjectKey,
                         projectName: params.ProjectName,
                         sonarHostUrl: params.SonarHostUrl,
-                        sonarToken: '${sonar_token}'
+                        sonarToken: "${sonar_token}"
                     )
                 }
             }
@@ -73,6 +77,21 @@ pipeline {
                     IMAGE_NAME: params.IMAGE_NAME,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
+            }
+        }
+
+        stage('Build and Push to Artifactory') {
+            steps {
+                script {
+                    // Call the shared library
+                    pushToArtifactory(config: [
+                        DOCKER_REGISTRY: params.DOCKER_REGISTRY,
+                        DOCKER_REPO: params.DOCKER_REPO,
+                        IMAGE_NAME: params.IMAGE_NAME,
+                        BUILD_NUMBER: params.BUILD_NUMBER,
+                        ARTIFACTORY_CREDENTIALS_ID: params.ARTIFACTORY_CREDENTIALS_ID
+                    ])
+                }
             }
         }
 
