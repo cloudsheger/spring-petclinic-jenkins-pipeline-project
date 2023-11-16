@@ -82,7 +82,6 @@ pipeline {
 
         stage('Build and Push to Artifactory') {
             steps {
-                script {
                     // Call the shared library
                   withCredentials([string(credentialsId: 'artifactory-credentials', variable: 'ARTIFACTORY_CREDENTIALS_ID')]) {    
                     pushToArtifactory(config: [
@@ -92,7 +91,7 @@ pipeline {
                         BUILD_NUMBER: params.BUILD_NUMBER,
                         ARTIFACTORY_CREDENTIALS_ID: "${ARTIFACTORY_CREDENTIALS_ID}"
                     ])
-                }
+                }    
             }
         }
 
