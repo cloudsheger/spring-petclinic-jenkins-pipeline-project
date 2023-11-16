@@ -10,8 +10,8 @@ pipeline {
         PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
 
         // Set the credentials with default values
-        sonar_token = credentials('SONAR_TOKEN_ID') ?: 'default-sonar-token'
-        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials') ?: 'default-artifactory-credentials'
+        sonar_token = credentials('SONAR_TOKEN_ID')
+        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials')
     }
 
     parameters {
@@ -27,8 +27,8 @@ pipeline {
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
 
         // Credentials with default values
-        credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
-        credentials(name: 'ARTIFACTORY_CREDENTIALS_ID', description: 'Artifactory credentials ID', defaultValue: 'default-artifactory-credentials')
+        //credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
+        //credentials(name: 'ARTIFACTORY_CREDENTIALS_ID', description: 'Artifactory credentials ID', defaultValue: 'default-artifactory-credentials')
     }
 
     stages {
@@ -84,12 +84,13 @@ pipeline {
             steps {
                 script {
                     // Call the shared library
+                  withCredentials([string(credentialsId: 'artifactory-credentials', variable: 'ARTIFACTORY_CREDENTIALS_ID')]) {    
                     pushToArtifactory(config: [
                         DOCKER_REGISTRY: params.DOCKER_REGISTRY,
                         DOCKER_REPO: params.DOCKER_REPO,
                         IMAGE_NAME: params.IMAGE_NAME,
                         BUILD_NUMBER: params.BUILD_NUMBER,
-                        ARTIFACTORY_CREDENTIALS_ID: params.ARTIFACTORY_CREDENTIALS_ID
+                        ARTIFACTORY_CREDENTIALS_ID: "${ARTIFACTORY_CREDENTIALS_ID}"
                     ])
                 }
             }
