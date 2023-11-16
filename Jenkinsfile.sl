@@ -22,10 +22,10 @@ pipeline {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
-        string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
-        string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
-        string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
-        string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        string(name: 'dockerRegistry', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+        string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
+        //string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
 
         // Credentials with default values
         //credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
@@ -86,25 +86,27 @@ pipeline {
                     // Call the shared library
                   withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory-credentials')]) {    
                     pushToArtifactory(
-                        DOCKER_REGISTRY: params.DOCKER_REGISTRY,
-                        DOCKER_REPO: params.DOCKER_REPO,
-                        IMAGE_NAME: params.IMAGE_NAME,
-                        BUILD_NUMBER: params.BUILD_NUMBER,
-                        ARTIFACTORY_CREDENTIALS_ID: "${artifactory-credentials}"
+                        dockerRegistry: params.dockerRegistry,
+                        dockerRepo: params.dockerRepo,
+                        imageName: params.imageName,
+                        //BUILD_NUMBER: params.BUILD_NUMBER,
+                        artifactory_credentials: "${artifactory-credentials}"
                         )
-                }    
+                }   
             }
         }
 
         stage('Push Image to Artifactory') {
             steps {
+               withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory-credentials')]) { 
                 pushToArtifactory(
                     DOCKER_REGISTRY: params.DOCKER_REGISTRY,
                     DOCKER_REPO: params.DOCKER_REPO,
                     IMAGE_NAME: params.IMAGE_NAME,
                     BUILD_NUMBER: params.BUILD_NUMBER,
-                    ARTIFACTORY_CREDENTIALS_ID: env.ARTIFACTORY_CREDENTIALS_ID
+                    ARTIFACTORY_CREDENTIALS_ID: "${artifactory-credentials}"
                 )
+               }
             }
         }
 
