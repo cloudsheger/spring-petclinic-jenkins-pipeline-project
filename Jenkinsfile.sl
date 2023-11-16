@@ -10,8 +10,8 @@ pipeline {
         PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
 
         // Set the credentials with default values
+        artifactory_credentials = credentials('ARTIFACTORY_CREDENTIALS_ID')
         sonar_token = credentials('SONAR_TOKEN_ID') 
-        artifactory-credentials = credentials('ARTIFACTORY_CREDENTIALS_ID')
     }
 
     parameters {
