@@ -57,7 +57,7 @@ pipeline {
             }
         }
 
-        stage('Sonar Static Code Analysis') {
+        stage('SonarQube Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
                     sonarScanPipeline(
