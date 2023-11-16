@@ -25,7 +25,7 @@ pipeline {
         string(name: 'dockerRegistry', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
         string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
-        //string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
 
         // Credentials with default values
         //credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
@@ -73,9 +73,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 buildDockerImage(
-                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
-                    DOCKER_REPO: params.DOCKER_REPO,
-                    IMAGE_NAME: params.IMAGE_NAME,
+                    DOCKER_REGISTRY: params.dockerRegistry,
+                    DOCKER_REPO: params.dockerRepo,
+                    IMAGE_NAME: params.imageName,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
             }
@@ -83,16 +83,15 @@ pipeline {
 
         stage('Build and Push to Artifactory') {
             steps {
-                    // Call the shared library
-                  withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory-credentials')]) {    
+                withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory_credentials')]) {
                     pushToArtifactory(
                         dockerRegistry: params.dockerRegistry,
                         dockerRepo: params.dockerRepo,
                         imageName: params.imageName,
                         //BUILD_NUMBER: params.BUILD_NUMBER,
                         artifactory_credentials: "${artifactory-credentials}"
-                        )
-                }   
+                    )
+                }
             }
         }
 
