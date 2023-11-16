@@ -10,8 +10,8 @@ pipeline {
         PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
 
         // Set the credentials with default values
-        sonar_token = credentials('SONAR_TOKEN_ID')
-        ARTIFACTORY_CREDENTIALS_ID = credentials('artifactory-credentials')
+        sonar_token = credentials('SONAR_TOKEN_ID') 
+        artifactory-credentials = credentials('ARTIFACTORY_CREDENTIALS_ID')
     }
 
     parameters {
@@ -84,7 +84,7 @@ pipeline {
         stage('Build and Push to Artifactory') {
             steps {
                     // Call the shared library
-                  withCredentials([string(credentialsId: 'artifactory-credentials', variable: 'ARTIFACTORY_CREDENTIALS_ID')]) {    
+                  withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory-credentials')]) {    
                     pushToArtifactory(
                         DOCKER_REGISTRY: params.DOCKER_REGISTRY,
                         DOCKER_REPO: params.DOCKER_REPO,
