@@ -90,7 +90,7 @@ pipeline {
                         DOCKER_REPO: params.DOCKER_REPO,
                         IMAGE_NAME: params.IMAGE_NAME,
                         BUILD_NUMBER: params.BUILD_NUMBER,
-                        ARTIFACTORY_CREDENTIALS_ID: "${ARTIFACTORY_CREDENTIALS_ID}"
+                        ARTIFACTORY_CREDENTIALS_ID: "${artifactory-credentials}"
                         )
                 }    
             }
