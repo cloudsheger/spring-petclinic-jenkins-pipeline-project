@@ -26,7 +26,13 @@ pipeline {
         string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        // Artifactory Related
 
+        string(name: 'DOCKER_REGISTRY', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+        string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
+        string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
+        string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'your-artifactory-credentials-id', description: 'Artifactory credentials ID')
         // Credentials with default values
         //credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
         //credentials(name: 'ARTIFACTORY_CREDENTIALS_ID', description: 'Artifactory credentials ID', defaultValue: 'default-artifactory-credentials')
@@ -78,6 +84,20 @@ pipeline {
                     IMAGE_NAME: params.imageName,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Call the shared library function
+                    buildAndPushDockerImage([
+                        DOCKER_REGISTRY: params.DOCKER_REGISTRY,
+                        DOCKER_REPO: params.DOCKER_REPO,
+                        IMAGE_NAME: params.IMAGE_NAME,
+                        BUILD_NUMBER: params.BUILD_NUMBER,
+                        ARTIFACTORY_CREDENTIALS_ID: '${artifactory_credentials}'
+                    ])
+                }
             }
         }
 
