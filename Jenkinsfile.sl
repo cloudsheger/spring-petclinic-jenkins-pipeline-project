@@ -15,6 +15,7 @@ pipeline {
     }
 
     parameters {
+
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
         string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
@@ -84,13 +85,13 @@ pipeline {
             steps {
                     // Call the shared library
                   withCredentials([string(credentialsId: 'artifactory-credentials', variable: 'ARTIFACTORY_CREDENTIALS_ID')]) {    
-                    pushToArtifactory(config: [
+                    pushToArtifactory(
                         DOCKER_REGISTRY: params.DOCKER_REGISTRY,
                         DOCKER_REPO: params.DOCKER_REPO,
                         IMAGE_NAME: params.IMAGE_NAME,
                         BUILD_NUMBER: params.BUILD_NUMBER,
                         ARTIFACTORY_CREDENTIALS_ID: "${ARTIFACTORY_CREDENTIALS_ID}"
-                    ])
+                        )
                 }    
             }
         }
