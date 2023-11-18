@@ -18,12 +18,12 @@ pipeline {
 
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
-        string(name: 'SonarHostUrl', defaultValue: 'http://54.164.70.91:9000', description: 'SonarQube server URL')
+        string(name: 'SonarHostUrl', defaultValue: 'http://54.152.218.64:9000', description: 'SonarQube server URL')
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
-        string(name: 'dockerRegistry', defaultValue: 'cloudsheger.jfrog.io', description: 'Artifactory Docker registry URL')
-        string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
+        string(name: 'dockerRegistry', defaultValue: 'cloudshegerlab.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRepo', defaultValue: 'cloudsheger-docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
         // Artifactory Related
