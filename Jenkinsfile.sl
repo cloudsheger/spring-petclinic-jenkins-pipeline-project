@@ -32,7 +32,7 @@ pipeline {
         string(name: 'DOCKER_REPO', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'IMAGE_NAME', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
-        string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'your-artifactory-credentials-id', description: 'Artifactory credentials ID')
+        //string(name: 'ARTIFACTORY_CREDENTIALS_ID', defaultValue: 'your-artifactory-credentials-id', description: 'Artifactory credentials ID')
         // Credentials with default values
         //credentials(name: 'SONAR_TOKEN_ID', description: 'SonarQube Token', defaultValue: 'default-sonar-token')
         //credentials(name: 'ARTIFACTORY_CREDENTIALS_ID', description: 'Artifactory credentials ID', defaultValue: 'default-artifactory-credentials')
