@@ -1,4 +1,4 @@
-@Library('my-shared-library') _
+@Library('jenkins-devops-libs') _
 
 pipeline {
     agent any
@@ -10,7 +10,7 @@ pipeline {
         PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
 
         // Set the credentials with default values
-        artifactory_credentials = credentials('ARTIFACTORY_CREDENTIALS_ID')
+        artifactory_credentials = credentials('admin.jfrog')
         sonar_token = credentials('SONAR_TOKEN_ID') 
     }
 
@@ -18,12 +18,12 @@ pipeline {
 
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
-        string(name: 'SonarHostUrl', defaultValue: 'http://54.152.218.64:9000', description: 'SonarQube server URL')
+        string(name: 'SonarHostUrl', defaultValue: 'http://3.91.247.172:9000', description: 'SonarQube server URL')
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
-        string(name: 'dockerRegistry', defaultValue: 'cloudshegerlab.jfrog.io', description: 'Artifactory Docker registry URL')
-        string(name: 'dockerRepo', defaultValue: 'cloudsheger-docker', description: 'Artifactory Docker repository name')
+        string(name: 'dockerRegistry', defaultValue: 'shegerlab23.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
         // Artifactory Related
