@@ -16,8 +16,7 @@ pipeline {
         DOCKER_REGISTRY = "shegerlab23.jfrog.io"
         DOCKER_REPO = "docker"
         IMAGE_NAME = "petclinic"
-        BUILD_NUMBER = "env.BUILD_NUMBER"
-        ARTIFACTORY_CREDENTIALS_ID = "admin.jfrog"
+        ARTIFACTORY_CREDENTIALS_ID = "jfrog-api-token"
     }
 
     parameters {
@@ -97,7 +96,7 @@ pipeline {
                         DOCKER_REGISTRY: DOCKER_REGISTRY,
                         DOCKER_REPO: DOCKER_REPO,
                         IMAGE_NAME: IMAGE_NAME,
-                        BUILD_NUMBER: BUILD_NUMBER,
+                        BUILD_NUMBER: params.BUILD_NUMBER,
                         ARTIFACTORY_CREDENTIALS_ID: ARTIFACTORY_CREDENTIALS_ID
                     ])
                 }
