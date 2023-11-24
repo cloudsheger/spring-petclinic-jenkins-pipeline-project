@@ -97,7 +97,7 @@ pipeline {
                         DOCKER_REPO: DOCKER_REPO,
                         IMAGE_NAME: IMAGE_NAME,
                         BUILD_NUMBER: params.BUILD_NUMBER,
-                        ARTIFACTORY_API_KEY_CREDENTIALS_ID: ARTIFACTORY_CREDENTIALS_ID
+                        DOCKER_CREDS_ID: ARTIFACTORY_CREDENTIALS_ID
                     ])
                 }
             }
