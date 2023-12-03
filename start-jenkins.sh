@@ -11,8 +11,8 @@
 #jfrog --version
 
 # Create a Docker volume for Jenkins data
-#docker volume create jenkins-data
-#docker network create monitor-net
+docker volume create jenkins-data
+docker network create monitor-net
 
 # Run the jenkins-docker container with a mounted volume for data persistence
 docker run --name jenkins-server --network monitor-net -d \
