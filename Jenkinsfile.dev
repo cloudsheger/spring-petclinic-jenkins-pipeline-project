@@ -13,10 +13,11 @@ pipeline {
        // artifactory_credentials = credentials('admin.jfrog')
         sonar_token = credentials('SONAR_TOKEN_ID')
 
-        DOCKER_REGISTRY = "shegerlab23.jfrog.io"
+        DOCKER_REGISTRY_URL = "https://hadid.jfrog.io"
+        DOCKER_REGISTRY = "hadid.jfrog.io"
         DOCKER_REPO = "docker"
         IMAGE_NAME = "petclinic"
-        ARTIFACTORY_CREDENTIALS_ID = "jfrog-api-token"
+        ARTIFACTORY_CREDENTIALS_ID = 'jfrog-cred.hadid'
     }
 
     parameters {
@@ -27,7 +28,7 @@ pipeline {
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
-        string(name: 'dockerRegistry', defaultValue: 'shegerlab23.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRegistry', defaultValue: 'hadid.jfrog.io', description: 'Artifactory Docker registry URL')
         string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
@@ -64,7 +65,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Code Analysis') {
+        /*stage('SonarQube Code Analysis') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR_TOKEN_ID', variable: 'sonar_token')]) {
                     sonarScanPipeline(
@@ -75,7 +76,7 @@ pipeline {
                     )
                 }
             }
-        }
+        }*/
 
         stage('Build Docker Image') {
             steps {
@@ -94,6 +95,7 @@ pipeline {
                     // Call the shared library function
                     buildAndPushDockerImage([
                         DOCKER_REGISTRY: DOCKER_REGISTRY,
+                        DOCKER_REGISTRY_URL: DOCKER_REGISTRY_URL,
                         DOCKER_REPO: DOCKER_REPO,
                         IMAGE_NAME: IMAGE_NAME,
                         BUILD_NUMBER: params.BUILD_NUMBER,
@@ -103,26 +105,12 @@ pipeline {
             }
         }
 
-        stage('Push Image to Artifactory') {
-            steps {
-               withCredentials([string(credentialsId: 'ARTIFACTORY_CREDENTIALS_ID', variable: 'artifactory-credentials')]) { 
-                pushToArtifactory(
-                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
-                    DOCKER_REPO: params.DOCKER_REPO,
-                    IMAGE_NAME: params.IMAGE_NAME,
-                    BUILD_NUMBER: params.BUILD_NUMBER,
-                    ARTIFACTORY_CREDENTIALS_ID: "${artifactory-credentials}"
-                )
-               }
-            }
-        }
-
         stage('Cleanup Docker Image') {
             steps {
                 cleanupDockerImage(
-                    DOCKER_REGISTRY: params.DOCKER_REGISTRY,
-                    DOCKER_REPO: params.DOCKER_REPO,
-                    IMAGE_NAME: params.IMAGE_NAME,
+                    DOCKER_REGISTRY: DOCKER_REGISTRY,
+                    DOCKER_REPO: DOCKER_REPO,
+                    IMAGE_NAME:  IMAGE_NAME,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
             }

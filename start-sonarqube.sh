@@ -3,7 +3,7 @@
 docker volume create sonarqube-data
 
 # Run the SonarQube container with a mounted volume for data persistence
-docker run --name sonarqube --network jenkins-network -d \
+docker run --name sonarqube --network monitor-net -d \
   -p 9000:9000 -p 9092:9092 \
   -v sonarqube-data:/opt/sonarqube/data \
   -v sonarqube-extensions:/opt/sonarqube/extensions \
