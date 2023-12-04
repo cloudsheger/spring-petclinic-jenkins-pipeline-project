@@ -9,14 +9,8 @@ pipeline {
         MAVEN_HOME = tool 'Maven 3.9.5'
         PATH = "${MAVEN_HOME}/bin:${JDK_HOME}/bin:${env.PATH}"
 
-        // Set the credentials with default values
-       // artifactory_credentials = credentials('admin.jfrog')
+        // Set the credentials for Sonar and Artifactory
         sonar_token = credentials('SONAR_TOKEN_ID')
-
-        DOCKER_REGISTRY_URL = "https://hadid.jfrog.io"
-        DOCKER_REGISTRY = "hadid.jfrog.io"
-        DOCKER_REPO = "docker"
-        IMAGE_NAME = "petclinic"
         ARTIFACTORY_CREDENTIALS_ID = 'jfrog-cred.hadid'
     }
 
@@ -24,11 +18,12 @@ pipeline {
 
         string(name: 'ProjectKey', defaultValue: 'shared-lib', description: 'SonarQube project key')
         string(name: 'ProjectName', defaultValue: 'shared-lib', description: 'SonarQube project name')
-        string(name: 'SonarHostUrl', defaultValue: 'http://3.91.247.172:9000', description: 'SonarQube server URL')
+        string(name: 'SonarHostUrl', defaultValue: 'http://localhost:9000', description: 'SonarQube server URL')
         string(name: 'GIT_REPO', defaultValue: 'https://github.com/cloudsheger/spring-petclinic-jenkins-pipeline-project.git', description: 'GitHub repo')
         string(name: 'GIT_BRANCH', defaultValue: 'main', description: 'GitHub branch name')
 
         string(name: 'dockerRegistry', defaultValue: 'hadid.jfrog.io', description: 'Artifactory Docker registry URL')
+        string(name: 'dockerRegistry_url', defaultValue: 'https://hadid.jfrog.io', description: 'Artifactory Docker registry URL')
         string(name: 'dockerRepo', defaultValue: 'docker', description: 'Artifactory Docker repository name')
         string(name: 'imageName', defaultValue: 'petclinic', description: 'Docker image name')
         string(name: 'BUILD_NUMBER', defaultValue: env.BUILD_NUMBER, description: 'Build number')
@@ -94,10 +89,10 @@ pipeline {
 
                     // Call the shared library function
                     buildAndPushDockerImage([
-                        DOCKER_REGISTRY: DOCKER_REGISTRY,
-                        DOCKER_REGISTRY_URL: DOCKER_REGISTRY_URL,
-                        DOCKER_REPO: DOCKER_REPO,
-                        IMAGE_NAME: IMAGE_NAME,
+                        DOCKER_REGISTRY: params.dockerRegistry,
+                        DOCKER_REGISTRY_URL: params.dockerRegistry_url,
+                        DOCKER_REPO: params.dockerRepo,
+                        IMAGE_NAME: params.imageName,
                         BUILD_NUMBER: params.BUILD_NUMBER,
                         DOCKER_CREDS_ID: ARTIFACTORY_CREDENTIALS_ID
                     ])
@@ -108,9 +103,9 @@ pipeline {
         stage('Cleanup Docker Image') {
             steps {
                 cleanupDockerImage(
-                    DOCKER_REGISTRY: DOCKER_REGISTRY,
-                    DOCKER_REPO: DOCKER_REPO,
-                    IMAGE_NAME:  IMAGE_NAME,
+                    DOCKER_REGISTRY: params.dockerRegistry,
+                    DOCKER_REPO: params.dockerRepo,
+                    IMAGE_NAME:  params.imageName,
                     BUILD_NUMBER: params.BUILD_NUMBER
                 )
             }
